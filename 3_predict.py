@@ -3,15 +3,17 @@ import os
 import cv2
 
 # Load a model
-model = YOLO('/home/maoyc/wxn/landslide/ultralytics/ultralytics/landslide_exp3/weights/best.pt')  # pretrained YOLOv8n model
-# model = YOLO('/home/maoyc/wxn/landslide/ultralytics/yolov8n.pt')  # pretrained YOLOv8n model
+model = YOLO('./ultralytics/landslide_exp3/weights/best.pt')  # pretrained YOLOv8n model
+# model = YOLO('./yolov8n.pt')  # pretrained YOLOv8n model
 
 # Run batched inference on a list of images
-# results = model("/home/maoyc/wxn/landslide/ultralytics/ddfgf10183_aug_2.png")  # return a list of Results objects
+# results = model("./ddfgf10183_aug_2.png")  # return a list of Results objects
 
-# results = model.predict("/home/maoyc/wxn/landslide/ultralytics/20221124160707179_LGWEF6A75MH250240_0_0_0_1__130.jpg", save=True)
-image_path = "/home/maoyc/wxn/landslide/ultralytics/df007.png"
+# results = model.predict("./20221124160707179_LGWEF6A75MH250240_0_0_0_1__130.jpg", save=True)
+image_path = "./5.png"
 results = model.predict(image_path, save=False)
+
+# for i in 
 x0,y0,x1,y1 = [int(i) for i in results[0].boxes.xyxy.cpu().numpy().tolist()[0]]
 confidence = round(float(results[0].boxes.conf),2)
 img_data = cv2.imread(image_path)
