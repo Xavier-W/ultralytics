@@ -18,8 +18,8 @@ aug3 = iaa.CloudLayer(
                     intensity_mean=240, 
                     intensity_freq_exponent=-2.5, intensity_coarse_scale=4, alpha_min=0.6, alpha_multiplier=0.4,
                       alpha_size_px_max=200, alpha_freq_exponent=-3.0, sparsity=1.2, density_multiplier=1.0, 
-                    #   seed=None, name=None,
-                    #   random_state="deprecated", deterministic="deprecated"
+                      seed=None, name=None,
+                      random_state="deprecated", deterministic="deprecated"
                       )
 
 # 对图像进行数据增强
