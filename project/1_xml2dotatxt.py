@@ -7,6 +7,10 @@ import xml.etree.ElementTree as ET
 import math
 import shutil
 from tqdm import tqdm
+
+import sys
+sys.path.append("/mnt/hdd0/xnwu/code/wxn/heatmap/ultralytics/")
+from ultralytics.data.converter import convert_dota_to_yolo_obb
  
 def edit_xml(xml_file, dotaxml_file):
     """
@@ -154,22 +158,57 @@ def totxt(xml_path, out_path):
  
  
 if __name__ == '__main__':
-    cls_list = ['person', 'ship', 'dog']  # 修改为自己的标签
+    cls_list = ['hook', 'yellow_steel_Ibeam']  # 修改为自己的标签
     # -----**** 第一步：把xml文件统一转换成旋转框的xml文件 ****-----
-    roxml_dir = './project/rotaxml'
-    dotaxml_dir = './project/dotaxml'
-    out_dir = './project/yolotxt'
+    imgs_dir = "./project/dataset/images"
+    roxml_dir = './project/dataset/ori_xml'
+    dotaxml_dir = './project/dataset/dotaxml'
+    dotatxt_dir = './project/dataset/dotatxt'
+    yolotxt_dir = '/mnt/hdd0/xnwu/code/wxn/heatmap/ultralytics/project/dataset/yolotxt'   # 必须绝对路径
     if os.path.exists(dotaxml_dir):
         shutil.rmtree(dotaxml_dir)
-    if os.path.exists(out_dir):
-        shutil.rmtree(out_dir)
+    if os.path.exists(dotatxt_dir):
+        shutil.rmtree(dotatxt_dir)
+    if os.path.exists(yolotxt_dir):
+        shutil.rmtree(yolotxt_dir)
     os.mkdir(dotaxml_dir)
-    os.mkdir(out_dir)
+    os.mkdir(dotatxt_dir)
+    os.mkdir(yolotxt_dir)
      
     filelist = os.listdir(roxml_dir)
     for file in filelist:
         edit_xml(os.path.join(roxml_dir, file), os.path.join(dotaxml_dir, file))
  
     # -----**** 第二步：把旋转框xml文件转换成txt格式 ****-----
-    print("convert to obb txt")
-    totxt(dotaxml_dir, out_dir)
+    print("===========>convert to obb txt")
+    totxt(dotaxml_dir, dotatxt_dir)
+
+
+    print("===========>convert to yolo txt")
+    train_dir = os.path.join(yolotxt_dir, 'labels', 'train_original')
+    if os.path.exists(train_dir):
+        shutil.rmtree(train_dir)
+    # os.makedirs(train_dir, exist_ok=True)
+    shutil.copytree(dotatxt_dir, train_dir)
+
+    train_dir = os.path.join(yolotxt_dir, 'images', 'train')
+    if os.path.exists(train_dir):
+        shutil.rmtree(train_dir)
+    os.makedirs(train_dir, exist_ok=True)
+
+
+    val_dir = os.path.join(yolotxt_dir, 'images', 'val')
+    if os.path.exists(val_dir):
+        shutil.rmtree(val_dir)
+    os.makedirs(val_dir, exist_ok=True)
+
+    images_list = os.listdir(imgs_dir)
+    for img_name in images_list:
+        img_path = os.path.join(imgs_dir, img_name)
+        shutil.copy(img_path, os.path.join(train_dir, img_name))
+
+
+    class_mapping = {}
+    for i,name in enumerate(cls_list):
+        class_mapping[name] = i
+    convert_dota_to_yolo_obb(yolotxt_dir, class_mapping)

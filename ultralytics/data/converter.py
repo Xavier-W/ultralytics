@@ -6,6 +6,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import os
 
 from ultralytics.utils import LOGGER, TQDM
 from ultralytics.utils.files import increment_path
@@ -474,6 +475,10 @@ def convert_dota_to_yolo_obb(dota_root_path: str, class_mapping: dict):
         """Converts a single image's DOTA annotation to YOLO OBB format and saves it to a specified directory."""
         orig_label_path = orig_label_dir / f"{image_name}.txt"
         save_path = save_dir / f"{image_name}.txt"
+
+        if not os.path.exists(orig_label_path):
+            f = open(orig_label_path, 'w')
+            f.close()
 
         with orig_label_path.open("r") as f, save_path.open("w") as g:
             lines = f.readlines()
